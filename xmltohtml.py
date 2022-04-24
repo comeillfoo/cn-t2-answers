@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from sys import base_exec_prefix
 import xml.etree.ElementTree as ET
 from typing import Dict, NewType
 
@@ -25,7 +26,7 @@ class Tag():
     print( contentText )
 
 def basic_fmt_text( t ):
-  return ' '.join( t.text.lstrip().rstrip().split() )
+  return ' '.join( t.lstrip().rstrip().split() )
 
 def main():
   root = ET.parse('answer.xml').getroot()
@@ -42,17 +43,21 @@ def main():
       for question in root.findall( 'test_question' ):
         with Tag( header, 'div', {} ) as q_div:
           with Tag( q_div, 'h2', {} ) as q_div_h2:
-            text = basic_fmt_text( question.find( 'question' ) )
-            q_div_h2.content( text )
+            q = question.find( 'question' )
+            output_text = q.text
+            output_text += ''.join(ET.tostring(child, encoding="unicode")
+                      for child in question.find('question'))
+            output_text = basic_fmt_text( output_text )
+            q_div_h2.content( output_text )
           
           with Tag( q_div, 'div', {} ) as q_div_body:
             with Tag( q_div_body, 'ul', {} ) as q_list:
               for variant in question.findall( 'answer_variant' ):
                 weightTag = variant.find( 'weight' )
-                color = 'green' if basic_fmt_text( weightTag ) == '+1' else 'red' 
+                color = 'green' if basic_fmt_text( weightTag.text ) == '+1' else 'red' 
                 with Tag( q_list, 'li', { 'style': f'color: {color}'} ) as q_list_item:
                   textTag = variant.find( 'text' )
-                  q_list_item.content( basic_fmt_text( textTag ) )
+                  q_list_item.content( basic_fmt_text( textTag.text ) )
 
 if __name__ == '__main__':
   main()
