@@ -41,23 +41,25 @@ def main():
           header_h1.content( 'Компьютерные сети. Тест 2' )
 
       for question in root.findall( 'test_question' ):
-        with Tag( header, 'div', {} ) as q_div:
-          with Tag( q_div, 'h2', {} ) as q_div_h2:
-            q = question.find( 'question' )
-            output_text = q.text
-            output_text += ''.join(ET.tostring(child, encoding="unicode")
-                      for child in question.find('question'))
-            output_text = basic_fmt_text( output_text )
-            q_div_h2.content( output_text )
-          
-          with Tag( q_div, 'div', {} ) as q_div_body:
-            with Tag( q_div_body, 'ul', {} ) as q_list:
-              for variant in question.findall( 'answer_variant' ):
-                weightTag = variant.find( 'weight' )
-                color = 'green' if basic_fmt_text( weightTag.text ) == '+1' else 'red' 
-                with Tag( q_list, 'li', { 'style': f'color: {color}'} ) as q_list_item:
-                  textTag = variant.find( 'text' )
-                  q_list_item.content( basic_fmt_text( textTag.text ) )
+        xml_header = question.find('header')
+        if basic_fmt_text(xml_header.text) != 'Deleted!':
+          with Tag( header, 'div', {} ) as q_div:
+            with Tag( q_div, 'h2', {} ) as q_div_h2:
+              q = question.find( 'question' )
+              output_text = q.text
+              output_text += ''.join(ET.tostring(child, encoding="unicode")
+                        for child in question.find('question'))
+              output_text = basic_fmt_text( output_text )
+              q_div_h2.content( output_text )
+            
+            with Tag( q_div, 'div', {} ) as q_div_body:
+              with Tag( q_div_body, 'ul', {} ) as q_list:
+                for variant in question.findall( 'answer_variant' ):
+                  weightTag = variant.find( 'weight' )
+                  color = 'green' if basic_fmt_text( weightTag.text ) == '+1' else 'red' 
+                  with Tag( q_list, 'li', { 'style': f'color: {color}'} ) as q_list_item:
+                    textTag = variant.find( 'text' )
+                    q_list_item.content( basic_fmt_text( textTag.text ) )
 
 if __name__ == '__main__':
   main()
